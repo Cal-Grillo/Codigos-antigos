@@ -1,0 +1,78 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using System.Data.SqlClient;
+
+namespace PrjDS2
+{
+    public partial class FrmUsuario : Form
+    {
+        private SqlConnection conexao;
+        public FrmUsuario()
+        {
+            InitializeComponent();
+        }
+        public List<Usuario> ListarUsuario()
+    {
+        List<Usuario> lista = new List<Usuario>();
+
+        Conectar();
+
+        string query = "SELECT Codigo, [Login], Senha FROM Usuario";
+
+        SqlCommand comando = new SqlCommand(query, conexao);
+
+        SqlDataReader leitor = comando.ExecuteReader();
+        while (leitor.NextResult())
+        {
+            Usuario novo = new Usuario();
+            novo.Codigo = leitor.GetInt32(0);
+            novo.Login = leitor.GetString(1);
+            novo.Senha = leitor.GetString(2);
+
+            lista.Add(novo);
+
+        }
+        return lista;
+    }
+        private void CadastrarUsusario(Usuario usuario) 
+    {
+        Conectar(); 
+    }
+        private void AlterarUsuario(Usuario usuario) 
+    {
+        Conectar();
+    }
+        private void ExcluirUsuario(Usuario usuario) 
+    {
+        Conectar();
+
+        string query = "DELETE FROM Usuario WHERE Codigo= " + usuario.Codigo;
+
+        new SqlCommand(query, conexao).ExecuteNonQuery();
+    }
+    public void Conectar()
+    {
+        conexao = new SqlConnection();     
+
+        SqlConnectionStringBuilder stringDeConexao;
+        stringDeConexao = new SqlConnectionStringBuilder();
+
+        stringDeConexao.DataSource = @"motorhead/data";
+        stringDeConexao.UserID = "fp0520131037";
+        stringDeConexao.InitialCatalog = "fp0520131037";
+        stringDeConexao.Password = "A12345678a";
+        stringDeConexao.IntegratedSecurity = false;
+        
+        conexao.ConnectionString = stringDeConexao.ToString();
+
+        conexao.Open();
+                
+    }
+    }
+}
