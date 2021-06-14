@@ -1,0 +1,145 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+
+namespace WFAExercicio2
+{
+    public partial class FrmAluno : Form
+    {
+        public FrmAluno()
+        {
+            InitializeComponent();
+        }
+        private void txtRm_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                int curso = Convert.ToInt32(txtRm.Text.Substring(2, 2));
+                if (curso > 0 && curso < 13)
+                    cmbCurso.SelectedIndex = curso - 1;
+
+                int ano = Convert.ToInt32(txtRm.Text.Substring(4, 4));
+                if (ano > 1900 && ano < 2100)
+                    txtAno.Text = ano.ToString();
+
+                int semestre = Convert.ToInt32(txtRm.Text.Substring(8, 1));
+                if (semestre > 0 && semestre < 3)
+                    txtSemestre.Text = semestre.ToString();
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+        Aluno aluno = null;
+
+
+        private void btnCadastrar_Click(object sender, EventArgs e)
+        {
+            Control[] campos = { txtAno, txtRm, txtSemestre, 
+                                   txtSenha, cmbCurso };
+            if (Valida.ValidarCaixas(campos))
+            {
+                string rm = txtRm.Text;
+                string senha = txtSenha.Text;
+                string curso = cmbCurso.Text;
+
+                int ano = Convert.ToInt32(txtAno.Text);
+                int semestre = Convert.ToInt32(txtSemestre.Text);
+
+                if (aluno == null)
+                {
+                    aluno = new Aluno();
+                    Entidades.Banco.AddToAluno(aluno);
+                    MessageBox.Show("Aluno cadastrado com sucesso!");
+                }
+                else
+                    MessageBox.Show("Aluno editado com sucesso!");
+                aluno.RM = rm;
+                aluno.Senha = senha;
+                aluno.Curso = curso;
+                aluno.Ano = ano;
+                aluno.Semestre = semestre;
+
+                if (aluno.Validar())
+                    Entidades.Banco.SaveChanges();
+                else
+                    MessageBox.Show("Ano e/ou semestres invalido(s)");
+
+                AtualizarGrid();
+            }
+        }
+
+        private void AtualizarGrid()
+        {
+            bdsAluno.DataSource = (from a in Entidades.Banco.Aluno
+                                   select a).ToList();
+        }
+
+        private void FrmAluno_Load(object sender, EventArgs e)
+        {
+            dgvAluno.AutoGenerateColumns = true;
+            AtualizarGrid();
+
+        }
+
+
+
+        private void dgvAluno_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            aluno = (Aluno)bdsAluno.Current;
+            txtRm.Text = aluno.RM;
+            txtSenha.Text = aluno.Senha;
+
+        }
+
+        private void FrmAluno_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyData == Keys.Escape)
+            {
+                LimparCaixa();
+            }
+        }
+
+        private void LimparCaixa()
+        {
+            txtRm.Clear();
+            txtSenha.Clear();
+            txtAno.Clear();
+            txtSemestre.Clear();
+
+            cmbCurso.SelectedIndex = -1;
+            dgvAluno.ClearSelection();
+            
+            aluno = null;
+        }
+
+        private void dgvAluno_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyData == Keys.Delete)
+            {
+                DialogResult resposta;
+                resposta = MessageBox.Show("Deseja excluir esse aluno?",
+                                            "Confirmar exclusão",
+                                            MessageBoxButtons.YesNo,
+                                            MessageBoxIcon.Question,
+                                            MessageBoxDefaultButton.Button2);
+
+                if (resposta == System.Windows.Forms.DialogResult.Yes)
+                {
+                    aluno = (Aluno)bdsAluno.Current;
+                    Entidades.Banco.Aluno.DeleteObject(aluno);
+                    Entidades.Banco.SaveChanges();
+
+                    MessageBox.Show("Aluno excluido com sucesso!");
+
+                    AtualizarGrid();
+                }
+            }
+        }
+    }
+}
