@@ -1,0 +1,43 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+
+namespace WindowsFormsApplication1
+{
+    class Valida
+    {
+        public static bool ValidarCaixas(Control[] campos)
+        {
+            foreach (Control campo in campos)
+            {
+                if (campo.Text == String.Empty)
+                {
+                    MessageBox.Show("A caixa" + campo.Name + "esta vazia.");
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool ValidarNumero(String Texto)
+        {
+            foreach (char caracter in Texto.ToCharArray())
+            {
+                if (!Char.IsDigit(caracter))
+                    return false;
+            }
+            return true;
+        }
+
+        public static bool ValidarNumero(Control campo)
+        {
+            bool valido = ValidarNumero(campo.Text);
+            if (!valido)
+                MessageBox.Show("O valor informado pelo campo" + campo.Name + "deve ser numérico.");
+            return valido;
+
+
+        }
+    }
+}
