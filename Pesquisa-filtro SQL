@@ -1,0 +1,125 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using System.Data.SqlClient;
+
+namespace TeladeProgresso
+{
+    public partial class Cliente : Form
+    {
+        public Cliente()
+        {
+            InitializeComponent();
+        }
+
+        private void clienteBindingNavigatorSaveItem_Click(object sender, EventArgs e)
+        {
+            this.Validate();
+            this.clienteBindingSource.EndEdit();
+            this.tableAdapterManager.UpdateAll(this.estoqueDataSet);
+
+        }
+
+        private void Cliente_Load(object sender, EventArgs e)
+        {
+            // TODO: This line of code loads data into the 'estoqueDataSet.Cliente' table. You can move, or remove it, as needed.
+            this.clienteTableAdapter.Fill(this.estoqueDataSet.Cliente);
+            
+
+        }
+         
+        private void LimparCaixa()
+        {
+            txtCodigo.Clear();
+            txtNome.Clear();
+            mskRG.Clear();
+            mskCPF.Clear();
+            txtEndereco.Clear();
+            mskTelefone.Clear();
+
+        }
+        private void btnPesquisar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (cmbFiltrar.Text == "Nome")
+                {
+                    string conexaoDB = @"Data Source=.\SQLEXPRESS; Initial Catalog=Estoque; Integrated Security=True";
+                    SqlConnection conexao = new SqlConnection(conexaoDB);
+                    conexao.Open();
+                    SqlCommand comando = new SqlCommand("SELECT * FROM dbo.Cliente WHERE Nome LIKE'%" + mskPesquisar.Text + "%'", conexao);
+
+                    SqlDataAdapter da = new SqlDataAdapter(comando);
+
+                    DataSet ds = new DataSet();
+
+                    DataTable cliente = new DataTable();
+                    da.Fill(cliente);
+
+                    clienteDataGridView.DataSource = cliente;
+                    LimparCaixa();
+                }
+
+                else if (cmbFiltrar.Text == "CPF")
+                {
+
+                    string conexaoDB = @"Data Source=.\SQLEXPRESS;Initial Catalog=Estoque;Integrated Security=True";
+                    SqlConnection conexao = new SqlConnection(conexaoDB);
+                    conexao.Open();
+                    SqlCommand comando = new SqlCommand("SELECT * FROM dbo.Cliente WHERE CPF LIKE'%" + mskPesquisar.Text+ "%'", conexao);
+
+                    SqlDataAdapter da = new SqlDataAdapter(comando);
+
+                    DataSet ds = new DataSet();
+
+                    DataTable cliente = new DataTable();
+                    da.Fill(cliente);
+
+                    clienteDataGridView.DataSource = cliente;
+
+                }
+
+                if (cmbFiltrar.Text == "")
+                {
+
+                    string conexaoDB = @"Data Source=.\SQLEXPRESS;Initial Catalog=Estoque;Integrated Security=True";
+                    SqlConnection conexao = new SqlConnection(conexaoDB);
+                    conexao.Open();
+                    SqlCommand comando = new SqlCommand("SELECT * FROM dbo.Cliente", conexao);
+
+                    SqlDataAdapter da = new SqlDataAdapter(comando);
+
+                    DataSet ds = new DataSet();
+
+                    DataTable cliente = new DataTable();
+                    da.Fill(cliente);
+
+                    clienteDataGridView.DataSource = cliente;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                SqlConnection conexao = new SqlConnection();
+                conexao.Close();
+
+            }
+
+        }
+
+     
+        }
+
+    }
+
